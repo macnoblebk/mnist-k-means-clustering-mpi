@@ -266,4 +266,28 @@ protected:
         }
     }
 
+    void broadcastClusterCentroids(int rank) {
+        logDebug(rank, " broadcasting centroids\n");
+
+        int count = k * d;
+        u_char* buffer = new u_char[count];
+
+        // Marshall centroids on root
+        if (rank == ROOT_PROCESS) {
+            marshallCentroids(buffer);
+            logDebug(rank, " sending centroids\n");
+        }
+
+        // Broadcast to all processes
+        MPI_Bcast(buffer, count, MPI_UNSIGNED_CHAR, ROOT_PROCESS, MPI_COMM_WORLD);
+
+        // Unmarshall centroids on non-root processes
+        if (rank != ROOT_PROCESS) {
+            unmarshallCentroids(buffer);
+            logDebug(rank, " received centroids\n");
+        }
+
+        delete[] buffer;
+    }
+
 };
