@@ -290,4 +290,13 @@ protected:
         delete[] buffer;
     }
 
+    void marshallCentroids(u_char* buffer) {
+        int bufIndex = 0;
+        for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+            for (int dimIndex = 0; dimIndex < d; dimIndex++) {
+                buffer[bufIndex++] = clusters[clusterIndex].centroid[dimIndex];
+            }
+        }
+    }
+
 };
