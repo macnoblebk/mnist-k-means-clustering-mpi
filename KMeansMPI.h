@@ -152,5 +152,9 @@ protected:
         elementIds = nullptr;
     }
 
+    void broadcastDatasetSize() {
+        MPI_Bcast(&totalElements, 1, MPI_INT, ROOT_PROCESS, MPI_COMM_WORLD);
+    }
+
 
 };
