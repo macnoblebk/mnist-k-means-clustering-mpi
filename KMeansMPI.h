@@ -351,4 +351,13 @@ protected:
         return closestCluster;
     }
 
+    void updateClusterCentroid(int clusterIndex, int elementIndex) {
+        accum(
+                clusters[clusterIndex].centroid,
+                clusters[clusterIndex].elements.size(),
+                partition[elementIndex],
+                1
+        );
+    }
+
 };
