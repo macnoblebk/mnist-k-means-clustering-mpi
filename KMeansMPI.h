@@ -308,4 +308,17 @@ protected:
         }
     }
 
+    void calculateElementDistances() {
+        for (int i = 0; i < localElements; i++) {
+            logDebug("Calculating distances for element ", i, ": ");
+
+            for (int j = 0; j < k; j++) {
+                dist[i][j] = distance(clusters[j].centroid, partition[i]);
+                logDebug(dist[i][j], " ");
+            }
+
+            logDebug("\n");
+        }
+    }
+
 };
