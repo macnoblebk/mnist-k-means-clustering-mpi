@@ -108,4 +108,15 @@ protected:
         }
     }
 
+    void initializeClusteringProcess(int rank) {
+        broadcastDatasetSize();
+        partitionDatasetElements(rank);
+
+        if (rank == ROOT_PROCESS) {
+            initializeClusterCentroids();
+        }
+
+        broadcastClusterCentroids(rank);
+    }
+
 };
