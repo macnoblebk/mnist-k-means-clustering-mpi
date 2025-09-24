@@ -360,5 +360,34 @@ protected:
         );
     }
 
+    void mergeClusterResults(int rank) {
+        int sendCount = k * (d + 1);
+        int recvCount = numProcesses * sendCount;
+        u_char* sendbuf = new u_char[sendCount];
+        u_char* recvbuf = nullptr;
+
+        // Marshall local cluster data
+        marshallLocalClusters(sendbuf);
+
+        // Gather all cluster data to root
+        if (rank == ROOT_PROCESS) {
+            recvbuf = new u_char[recvCount];
+        }
+
+        MPI_Gather(
+                sendbuf, sendCount, MPI_UNSIGNED_CHAR,
+                recvbuf, sendCount, MPI_UNSIGNED_CHAR,
+                ROOT_PROCESS, MPI_COMM_WORLD
+        );
+
+        // On root, merge cluster results
+        if (rank == ROOT_PROCESS) {
+            mergeClustersOnRoot(recvbuf);
+            delete[] recvbuf;
+        }
+
+        delete[] sendbuf;
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
