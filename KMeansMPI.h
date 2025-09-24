@@ -360,4 +360,5 @@ protected:
         );
     }
 
+    virtual double distance(const Element& a, const Element& b) const = 0;
 };
