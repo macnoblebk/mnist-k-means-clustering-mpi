@@ -198,4 +198,32 @@ protected:
         delete[] displs;
     }
 
+    void marshallElementData(u_char** sendbuf, int** sendcounts, int** displs, int elementsPerProcess) {
+        *sendbuf = new u_char[totalElements * (d + 1)];
+        *sendcounts = new int[numProcesses];
+        *displs = new int[numProcesses];
+
+        // Pack element data and indexes
+        int bufIndex = 0;
+        for (int elemIndex = 0; elemIndex < totalElements; elemIndex++) {
+            // Pack element data
+            for (int dimIndex = 0; dimIndex < d; dimIndex++) {
+                (*sendbuf)[bufIndex++] = elements[elemIndex][dimIndex];
+            }
+            // Pack element index
+            (*sendbuf)[bufIndex++] = (u_char)elemIndex;
+        }
+
+        // Set up send counts and displacements
+        for (int procIndex = 0; procIndex < numProcesses; procIndex++) {
+            (*displs)[procIndex] = procIndex * elementsPerProcess * (d + 1);
+            (*sendcounts)[procIndex] = elementsPerProcess * (d + 1);
+
+            // Last process gets any remaining elements
+            if (procIndex == numProcesses - 1) {
+                (*sendcounts)[procIndex] = bufIndex - ((numProcesses - 1) * elementsPerProcess * (d + 1));
+            }
+        }
+    }
+
 };
