@@ -100,5 +100,12 @@ protected:
     DistanceMatrix dist;                   // Distance matrix for local elements to centroids
     bool isVerboseMode;                    // Flag for verbose debug output
 
+    template<typename... Args>
+    void logDebug(Args&&... args) {
+        if (isVerboseMode) {
+            using namespace std;
+            (cout << ... << args);
+        }
+    }
 
 };
