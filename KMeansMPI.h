@@ -157,4 +157,45 @@ protected:
     }
 
 
+    /**
+     * @brief Distribute elements among all processes
+     * @param rank The ID of the current process
+     */
+    void partitionDatasetElements(int rank) {
+        MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
+        u_char* sendbuf = nullptr, *recvbuf = nullptr;
+        int* sendcounts = nullptr, *displs = nullptr;
+        int elementsPerProcess = totalElements / numProcesses;
+
+        // Calculate local partition size
+        localElements = elementsPerProcess;
+        if (rank == numProcesses - 1) {
+            localElements = totalElements - (elementsPerProcess * (numProcesses - 1));
+        }
+
+        // Prepare distance matrix for local elements
+        dist.resize(localElements);
+
+        // Marshall data on root process
+        if (rank == ROOT_PROCESS) {
+            marshallElementData(&sendbuf, &sendcounts, &displs, elementsPerProcess);
+        }
+
+        // Prepare receive buffer
+        int recvcount = localElements * (d + 1);
+        recvbuf = new u_char[recvcount];
+
+        // Scatter element data to all processes
+        scatterElementData(sendbuf, sendcounts, displs, recvbuf, recvcount, rank);
+
+        // Unmarshall received data
+        unmarshallElementData(recvbuf);
+
+        // Clean up
+        delete[] sendbuf;
+        delete[] recvbuf;
+        delete[] sendcounts;
+        delete[] displs;
+    }
+
 };
