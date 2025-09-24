@@ -235,4 +235,19 @@ protected:
         );
     }
 
+    void unmarshallElementData(u_char* recvbuf) {
+        partition = new Element[localElements];
+        elementIds = new int[localElements];
+
+        int bufIndex = 0;
+        for (int elemIndex = 0; elemIndex < localElements; elemIndex++) {
+            // Unpack element data
+            for (int dimIndex = 0; dimIndex < d; dimIndex++) {
+                partition[elemIndex][dimIndex] = recvbuf[bufIndex++];
+            }
+            // Unpack element index
+            elementIds[elemIndex] = (int)recvbuf[bufIndex++];
+        }
+    }
+
 };
