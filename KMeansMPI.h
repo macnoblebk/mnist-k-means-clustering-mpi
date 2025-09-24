@@ -321,4 +321,24 @@ protected:
         }
     }
 
+    void updateLocalClusters() {
+        // Reset all clusters
+        for (int j = 0; j < k; j++) {
+            clusters[j].centroid = Element{};
+            clusters[j].elements.clear();
+        }
+
+        // Assign each element to its closest cluster
+        for (int i = 0; i < localElements; i++) {
+            // Find closest centroid
+            int closestCluster = findClosestCluster(i);
+
+            // Update centroid with this element
+            updateClusterCentroid(closestCluster, i);
+
+            // Add element to the cluster
+            clusters[closestCluster].elements.push_back(i);
+        }
+    }
+
 };
