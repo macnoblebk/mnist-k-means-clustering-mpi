@@ -43,4 +43,10 @@ public:
         fitWork(ROOT_PROCESS);
     }
 
+    virtual void fitWork(int rank) {
+        initializeClusteringProcess(rank);
+        runClusteringIterations(rank);
+        finalizeClusteringProcess(rank);
+    }
+
 };
