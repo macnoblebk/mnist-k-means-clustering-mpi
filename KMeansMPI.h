@@ -119,4 +119,28 @@ protected:
         broadcastClusterCentroids(rank);
     }
 
+    void runClusteringIterations(int rank) {
+        Clusters previousClusters = clusters;
+        // Make initial state different to ensure at least one iteration
+        previousClusters[0].centroid[0]++;
+
+        for (int iteration = 0; iteration < MAX_FIT_STEPS; iteration++) {
+            // Check for convergence
+            if (previousClusters == clusters && iteration > 0) {
+                logDebug(rank, " converged at iteration ", iteration, "\n");
+                break;
+            }
+
+            logDebug(rank, " working on iteration ", iteration, "\n");
+
+            // Perform one iteration of the clustering algorithm
+            calculateElementDistances();
+            previousClusters = clusters;
+            updateLocalClusters();
+            mergeClusterResults(rank);
+            broadcastClusterCentroids(rank);
+        }
+    }
+
+
 };
