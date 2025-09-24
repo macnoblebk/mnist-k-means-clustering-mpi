@@ -226,4 +226,13 @@ protected:
         }
     }
 
+    void scatterElementData(u_char* sendbuf, int* sendcounts, int* displs,
+                            u_char* recvbuf, int recvcount, int rank) {
+        MPI_Scatterv(
+                sendbuf, sendcounts, displs, MPI_UNSIGNED_CHAR,
+                recvbuf, recvcount, MPI_UNSIGNED_CHAR,
+                ROOT_PROCESS, MPI_COMM_WORLD
+        );
+    }
+
 };
