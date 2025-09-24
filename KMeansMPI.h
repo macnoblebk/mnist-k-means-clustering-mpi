@@ -142,5 +142,15 @@ protected:
         }
     }
 
+    void finalizeClusteringProcess(int rank) {
+        gatherClusterAssignments(rank);
+
+        // Clean up local data
+        delete[] partition;
+        delete[] elementIds;
+        partition = nullptr;
+        elementIds = nullptr;
+    }
+
 
 };
