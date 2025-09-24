@@ -250,4 +250,20 @@ protected:
         }
     }
 
+    void initializeClusterCentroids() {
+        std::vector<int> seeds;
+        std::vector<int> candidates(totalElements);
+        std::iota(candidates.begin(), candidates.end(), 0);
+
+        // Randomly select k elements as initial centroids
+        auto random = std::mt19937{std::random_device{}()};
+        std::sample(candidates.begin(), candidates.end(), back_inserter(seeds), k, random);
+
+        // Set up initial clusters
+        for (int i = 0; i < k; i++) {
+            clusters[i].centroid = elements[seeds[i]];
+            clusters[i].elements.clear();
+        }
+    }
+
 };
