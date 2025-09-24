@@ -37,4 +37,10 @@ public:
         return clusters;
     }
 
+    virtual void fit(const Element* data, int nData) {
+        elements = data;
+        totalElements = nData;
+        fitWork(ROOT_PROCESS);
+    }
+
 };
