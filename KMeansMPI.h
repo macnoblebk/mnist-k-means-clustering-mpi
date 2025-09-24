@@ -341,4 +341,14 @@ protected:
         }
     }
 
+    int findClosestCluster(int elementIndex) {
+        int closestCluster = 0;
+        for (int j = 1; j < k; j++) {
+            if (dist[elementIndex][j] < dist[elementIndex][closestCluster]) {
+                closestCluster = j;
+            }
+        }
+        return closestCluster;
+    }
+
 };
