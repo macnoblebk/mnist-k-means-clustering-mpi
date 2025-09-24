@@ -88,4 +88,17 @@ public:
         finalizeClusteringProcess(rank);
     }
 
+protected:
+    // Data members
+    const Element* elements = nullptr;     // Set of elements to classify
+    Element* partition = nullptr;          // Partition of elements for the current process
+    int* elementIds = nullptr;             // Locally track original indices in elements
+    int totalElements = 0;                 // Total number of elements in the dataset
+    int localElements = 0;                 // Number of elements in this process's partition
+    int numProcesses = 0;                  // Number of processes in MPI_COMM_WORLD
+    Clusters clusters;                     // k clusters resulting from latest call to fit()
+    DistanceMatrix dist;                   // Distance matrix for local elements to centroids
+    bool isVerboseMode;                    // Flag for verbose debug output
+
+
 };
