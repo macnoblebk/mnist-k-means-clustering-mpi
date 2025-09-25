@@ -5,10 +5,12 @@
  * @see "Seattle University, CPSC5600, Winter 2025"
  */
 
-#include <iostream>
-#include <fstream>
+#pragma once
 #include <vector>
-#include "ColorKMeansMPI.h"
+#include <random>
+#include <algorithm>
+#include <array>
+#include <iostream>
 #include "mpi.h"
 
 template <int k, int d>
