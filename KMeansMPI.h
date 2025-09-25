@@ -434,5 +434,44 @@ protected:
         }
     }
 
+    void gatherClusterAssignments(int rank) {
+        // Count how many bytes we need to send
+        int elementsToSend = 0;
+        for (const auto& cluster : clusters) {
+            elementsToSend += cluster.elements.size();
+        }
+
+        int sendcount = elementsToSend + k;  // Add k for cluster sizes
+        u_char* sendbuf = new u_char[sendcount];
+        u_char* recvbuf = nullptr;
+        int* recvcounts = nullptr;
+        int* displs = nullptr;
+
+        // Marshall cluster assignments
+        marshallClusterAssignments(sendbuf);
+
+        // Set up receive parameters on root
+        if (rank == ROOT_PROCESS) {
+            prepareClusterGatherBuffers(&recvbuf, &recvcounts, &displs);
+        }
+
+        // Gather all assignments to root
+        MPI_Gatherv(
+                sendbuf, sendcount, MPI_UNSIGNED_CHAR,
+                recvbuf, recvcounts, displs, MPI_UNSIGNED_CHAR,
+                ROOT_PROCESS, MPI_COMM_WORLD
+        );
+
+        // Process gathered assignments on root
+        if (rank == ROOT_PROCESS) {
+            processGatheredAssignments(recvbuf);
+            delete[] recvbuf;
+            delete[] recvcounts;
+            delete[] displs;
+        }
+
+        delete[] sendbuf;
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
