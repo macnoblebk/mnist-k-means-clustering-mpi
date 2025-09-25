@@ -487,5 +487,22 @@ protected:
         }
     }
 
+    void prepareClusterGatherBuffers(u_char** recvbuf, int** recvcounts, int** displs) {
+        *recvbuf = new u_char[totalElements + k * numProcesses];
+        *recvcounts = new int[numProcesses];
+        *displs = new int[numProcesses];
+
+        int elementsPerProcess = totalElements / numProcesses;
+        for (int procIndex = 0; procIndex < numProcesses; procIndex++) {
+            (*recvcounts)[procIndex] = elementsPerProcess + k;
+
+            if (procIndex == numProcesses - 1) {
+                (*recvcounts)[procIndex] = (totalElements - (elementsPerProcess * (numProcesses - 1))) + k;
+            }
+
+            (*displs)[procIndex] = procIndex * (elementsPerProcess + k);
+        }
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
