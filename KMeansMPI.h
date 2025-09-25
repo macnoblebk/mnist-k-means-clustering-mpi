@@ -473,5 +473,19 @@ protected:
         delete[] sendbuf;
     }
 
+    void marshallClusterAssignments(u_char* buffer) {
+        int bufIndex = 0;
+
+        for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+            // Store cluster size
+            buffer[bufIndex++] = (u_char)clusters[clusterIndex].elements.size();
+
+            // Store element IDs
+            for (int& elemIndex : clusters[clusterIndex].elements) {
+                buffer[bufIndex++] = (u_char)elementIds[elemIndex];
+            }
+        }
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
