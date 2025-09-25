@@ -18,9 +18,7 @@ public:
 
     /**
      * @brief Equality operator for clusters
-     *
      * Compares only centroids, regardless of the elements in the cluster.
-     *
      * @param left Left operand
      * @param right Right operand
      * @return true if centroids are identical, false otherwise
@@ -51,9 +49,7 @@ public:
 
   /**
    * @brief Expose the clusters to the client readonly
-   *
    * Provides access to the final clustering results after fit() has been called.
-   *
    * @return Reference to the array of clusters from the latest call to fit()
    */
     virtual const Clusters& getClusters() {
@@ -62,10 +58,8 @@ public:
 
     /**
      * @brief Main k-means clustering algorithm entry point
-     *
      * This method is called by the ROOT process only. It initializes the data
      * and calls fitWork() to perform the clustering in parallel.
-     *
      * @param data Pointer to the array of data elements for k-means
      * @param nData The number of data elements in the array
      */
@@ -77,9 +71,7 @@ public:
 
     /**
      * @brief Per-process work for fitting the k-means model
-     *
      * This is the main worker method for all processes.
-     *
      * @param rank Process rank within MPI_COMM_WORLD
      */
     virtual void fitWork(int rank) {
@@ -100,6 +92,10 @@ protected:
     DistanceMatrix dist;                   // Distance matrix for local elements to centroids
     bool isVerboseMode;                    // Flag for verbose debug output
 
+    /**
+     * @brief Log debug information when verbose mode is enabled
+     * @param message Message to log
+     */
     template<typename... Args>
     void logDebug(Args&&... args) {
         if (isVerboseMode) {
@@ -108,6 +104,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Initialize the clustering process
+     * @param rank Current process rank
+     */
     void initializeClusteringProcess(int rank) {
         broadcastDatasetSize();
         partitionDatasetElements(rank);
@@ -119,6 +119,10 @@ protected:
         broadcastClusterCentroids(rank);
     }
 
+    /**
+     * @brief Run the main clustering iterations
+     * @param rank Current process rank
+     */
     void runClusteringIterations(int rank) {
         Clusters previousClusters = clusters;
         // Make initial state different to ensure at least one iteration
@@ -142,6 +146,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Finalize the clustering process
+     * @param rank Current process rank
+     */
     void finalizeClusteringProcess(int rank) {
         gatherClusterAssignments(rank);
 
@@ -152,6 +160,9 @@ protected:
         elementIds = nullptr;
     }
 
+    /**
+     * @brief Broadcast the dataset size to all processes
+     */
     void broadcastDatasetSize() {
         MPI_Bcast(&totalElements, 1, MPI_INT, ROOT_PROCESS, MPI_COMM_WORLD);
     }
@@ -198,6 +209,13 @@ protected:
         delete[] displs;
     }
 
+    /**
+     * @brief Marshall element data for distribution
+     * @param sendbuf Output parameter for send buffer
+     * @param sendcounts Output parameter for send counts array
+     * @param displs Output parameter for displacements array
+     * @param elementsPerProcess Number of elements per process
+     */
     void marshallElementData(u_char** sendbuf, int** sendcounts, int** displs, int elementsPerProcess) {
         *sendbuf = new u_char[totalElements * (d + 1)];
         *sendcounts = new int[numProcesses];
@@ -226,6 +244,15 @@ protected:
         }
     }
 
+    /**
+     * @brief Scatter element data to all processes
+     * @param sendbuf Send buffer (only used on root)
+     * @param sendcounts Send counts array (only used on root)
+     * @param displs Displacements array (only used on root)
+     * @param recvbuf Receive buffer
+     * @param recvcount Receive count
+     * @param rank Current process rank
+     */
     void scatterElementData(u_char* sendbuf, int* sendcounts, int* displs,
                             u_char* recvbuf, int recvcount, int rank) {
         MPI_Scatterv(
@@ -235,6 +262,10 @@ protected:
         );
     }
 
+    /**
+     * @brief Unmarshall received element data
+     * @param recvbuf Received buffer data
+     */
     void unmarshallElementData(u_char* recvbuf) {
         partition = new Element[localElements];
         elementIds = new int[localElements];
@@ -250,6 +281,9 @@ protected:
         }
     }
 
+    /**
+     * @brief Initialize cluster centroids by random sampling
+     */
     void initializeClusterCentroids() {
         std::vector<int> seeds;
         std::vector<int> candidates(totalElements);
@@ -266,6 +300,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Broadcast cluster centroids to all processes
+     * @param rank Current process rank
+     */
     void broadcastClusterCentroids(int rank) {
         logDebug(rank, " broadcasting centroids\n");
 
@@ -290,6 +328,10 @@ protected:
         delete[] buffer;
     }
 
+    /**
+     * @brief Marshall centroids into a buffer
+     * @param buffer Buffer to fill with centroid data
+     */
     void marshallCentroids(u_char* buffer) {
         int bufIndex = 0;
         for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
@@ -299,6 +341,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Unmarshall centroids from a buffer
+     * @param buffer Buffer containing centroid data
+     */
     void unmarshallCentroids(const u_char* buffer) {
         int bufIndex = 0;
         for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
@@ -308,6 +354,9 @@ protected:
         }
     }
 
+    /**
+     * @brief Calculate distances from each element to each cluster centroid
+     */
     void calculateElementDistances() {
         for (int i = 0; i < localElements; i++) {
             logDebug("Calculating distances for element ", i, ": ");
@@ -321,6 +370,9 @@ protected:
         }
     }
 
+    /**
+     * @brief Update local clusters based on distance calculations
+     */
     void updateLocalClusters() {
         // Reset all clusters
         for (int j = 0; j < k; j++) {
@@ -341,6 +393,11 @@ protected:
         }
     }
 
+    /**
+     * @brief Find the closest cluster for an element
+     * @param elementIndex Index of the element in the local partition
+     * @return Index of the closest cluster
+     */
     int findClosestCluster(int elementIndex) {
         int closestCluster = 0;
         for (int j = 1; j < k; j++) {
@@ -351,6 +408,11 @@ protected:
         return closestCluster;
     }
 
+    /**
+     * @brief Update a cluster centroid with a new element
+     * @param clusterIndex Index of the cluster to update
+     * @param elementIndex Index of the element in the local partition
+     */
     void updateClusterCentroid(int clusterIndex, int elementIndex) {
         accum(
                 clusters[clusterIndex].centroid,
@@ -360,6 +422,10 @@ protected:
         );
     }
 
+    /**
+     * @brief Merge cluster results from all processes
+     * @param rank Current process rank
+     */
     void mergeClusterResults(int rank) {
         int sendCount = k * (d + 1);
         int recvCount = numProcesses * sendCount;
@@ -389,6 +455,10 @@ protected:
         delete[] sendbuf;
     }
 
+    /**
+     * @brief Marshall local cluster data for merging
+     * @param buffer Buffer to fill with cluster data
+     */
     void marshallLocalClusters(u_char* buffer) {
         int bufIndex = 0;
         for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
@@ -401,6 +471,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Merge clusters from all processes on the root process
+     * @param recvbuf Buffer containing all processes' cluster data
+     */
     void mergeClustersOnRoot(u_char* recvbuf) {
         // Track sizes for proper averaging
         std::array<int, k> clusterSizes;
@@ -434,6 +508,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Gather all cluster assignments across processes
+     * @param rank Current process rank
+     */
     void gatherClusterAssignments(int rank) {
         // Count how many bytes we need to send
         int elementsToSend = 0;
@@ -473,6 +551,10 @@ protected:
         delete[] sendbuf;
     }
 
+    /**
+     * @brief Marshall cluster assignments for gathering
+     * @param buffer Buffer to fill with assignment data
+     */
     void marshallClusterAssignments(u_char* buffer) {
         int bufIndex = 0;
 
@@ -487,6 +569,12 @@ protected:
         }
     }
 
+    /**
+     * @brief Prepare buffers for gathering cluster assignments
+     * @param recvbuf Output parameter for receive buffer
+     * @param recvcounts Output parameter for receive counts array
+     * @param displs Output parameter for displacements array
+     */
     void prepareClusterGatherBuffers(u_char** recvbuf, int** recvcounts, int** displs) {
         *recvbuf = new u_char[totalElements + k * numProcesses];
         *recvcounts = new int[numProcesses];
@@ -504,6 +592,10 @@ protected:
         }
     }
 
+    /**
+     * @brief Process gathered cluster assignments on root
+     * @param recvbuf Buffer containing all processes' cluster assignments
+     */
     void processGatheredAssignments(u_char* recvbuf) {
         // Clear existing assignments
         for (Cluster& cluster : clusters) {
@@ -526,6 +618,16 @@ protected:
         }
     }
 
+    /**
+     * @brief Update a centroid with additional element(s)
+     *
+     * @param centroid   Current mean of elements in the cluster
+     * @param centroid_n Number of elements currently in the cluster
+     * @param addend     Element(s) to be added; if multiple, addend is their mean
+     * @param addend_n   Number of elements represented in the addend
+     *
+     * @post centroid is updated to the new weighted average
+     */
     virtual void accum(Element& centroid, int centroid_n, const Element& addend, int addend_n) const {
         if (centroid_n + addend_n == 0) return;  // Avoid division by zero
 
@@ -536,5 +638,15 @@ protected:
         }
     }
 
+    /**
+     * @brief Calculate distance between two elements
+     *
+     * Abstract method that must be implemented by subclasses to define
+     * the distance metric for the specific data type.
+     *
+     * @param a First element
+     * @param b Second element
+     * @return Distance between a and b, which must be non-negative
+     */
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
