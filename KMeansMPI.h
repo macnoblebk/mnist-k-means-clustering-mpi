@@ -13,6 +13,17 @@
 #include <iostream>
 #include "mpi.h"
 
+/**
+ * @class KMeansMPI
+ * @brief Abstract k-means MPI class for parallel clustering
+ *
+ * This class implements the k-means clustering algorithm in a distributed manner using MPI.
+ * It partitions the dataset among multiple processes, each performing local clustering,
+ * and then aggregates results through inter-process communication.
+ *
+ * @tparam k the number of clusters for k-means
+ * @tparam d the dimensionality of a data element (e.g., 3 for RGB colors)
+ */
 template <int k, int d>
 class KMeansMPI {
 public:
