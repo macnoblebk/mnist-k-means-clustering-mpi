@@ -5,6 +5,11 @@
  * @see "Seattle University, CPSC5600, Winter 2025"
  */
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "ColorKMeansMPI.h"
+#include "mpi.h"
 
 template <int k, int d>
 class KMeansMPI {
