@@ -401,5 +401,38 @@ protected:
         }
     }
 
+    void mergeClustersOnRoot(u_char* recvbuf) {
+        // Track sizes for proper averaging
+        std::array<int, k> clusterSizes;
+        for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+            clusterSizes[clusterIndex] = clusters[clusterIndex].elements.size();
+        }
+
+        // Process data from each process
+        int bufIndex = 0;
+        for (int procIndex = 0; procIndex < numProcesses; procIndex++) {
+            for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+                // Extract centroid
+                Element centroid = Element{};
+                for (int dimIndex = 0; dimIndex < d; dimIndex++) {
+                    centroid[dimIndex] = recvbuf[bufIndex++];
+                }
+
+                // Extract cluster size
+                int size = (int)recvbuf[bufIndex++];
+
+                // Average with existing centroid
+                if (size > 0) {
+                    accum(
+                            clusters[clusterIndex].centroid,
+                            clusterSizes[clusterIndex],
+                            centroid, size
+                    );
+                    clusterSizes[clusterIndex] += size;
+                }
+            }
+        }
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
