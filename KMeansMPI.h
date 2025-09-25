@@ -620,12 +620,10 @@ protected:
 
     /**
      * @brief Update a centroid with additional element(s)
-     *
      * @param centroid   Current mean of elements in the cluster
      * @param centroid_n Number of elements currently in the cluster
      * @param addend     Element(s) to be added; if multiple, addend is their mean
      * @param addend_n   Number of elements represented in the addend
-     *
      * @post centroid is updated to the new weighted average
      */
     virtual void accum(Element& centroid, int centroid_n, const Element& addend, int addend_n) const {
@@ -640,10 +638,8 @@ protected:
 
     /**
      * @brief Calculate distance between two elements
-     *
      * Abstract method that must be implemented by subclasses to define
      * the distance metric for the specific data type.
-     *
      * @param a First element
      * @param b Second element
      * @return Distance between a and b, which must be non-negative
