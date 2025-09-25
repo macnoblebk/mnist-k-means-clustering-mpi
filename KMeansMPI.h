@@ -504,5 +504,27 @@ protected:
         }
     }
 
+    void processGatheredAssignments(u_char* recvbuf) {
+        // Clear existing assignments
+        for (Cluster& cluster : clusters) {
+            cluster.elements.clear();
+        }
+
+        // Process assignments from each process
+        int bufIndex = 0;
+        for (int procIndex = 0; procIndex < numProcesses; procIndex++) {
+            for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+                // Get number of elements in this cluster from this process
+                int size = (int)recvbuf[bufIndex++];
+
+                // Add each element to the appropriate cluster
+                for (int e = 0; e < size; e++) {
+                    int elementId = (int)recvbuf[bufIndex++];
+                    clusters[clusterIndex].elements.push_back(elementId);
+                }
+            }
+        }
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
