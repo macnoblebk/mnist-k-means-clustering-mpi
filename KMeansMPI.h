@@ -389,5 +389,17 @@ protected:
         delete[] sendbuf;
     }
 
+    void marshallLocalClusters(u_char* buffer) {
+        int bufIndex = 0;
+        for (int clusterIndex = 0; clusterIndex < k; clusterIndex++) {
+            // Pack centroid
+            for (int dimIndex = 0; dimIndex < d; dimIndex++) {
+                buffer[bufIndex++] = clusters[clusterIndex].centroid[dimIndex];
+            }
+            // Pack cluster size
+            buffer[bufIndex++] = (u_char)clusters[clusterIndex].elements.size();
+        }
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
