@@ -14,7 +14,7 @@ public:
     using DistanceMatrix = std::vector<std::array<double, k>>;
 
     static const int MAX_FIT_STEPS = 300;  // Maximum number of iterations before giving up
-    static const int ROOT_PROCESS = 0;     // Rank of the root/coordinator process
+    static const int ROOT_PROCESS = 0;     // Rank of the root process
 
     /**
      * @brief Equality operator for clusters
