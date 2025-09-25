@@ -526,5 +526,15 @@ protected:
         }
     }
 
+    virtual void accum(Element& centroid, int centroid_n, const Element& addend, int addend_n) const {
+        if (centroid_n + addend_n == 0) return;  // Avoid division by zero
+
+        int new_n = centroid_n + addend_n;
+        for (int i = 0; i < d; i++) {
+            double new_total = (double)centroid[i] * centroid_n + (double)addend[i] * addend_n;
+            centroid[i] = (u_char)(new_total / new_n);
+        }
+    }
+
     virtual double distance(const Element& a, const Element& b) const = 0;
 };
