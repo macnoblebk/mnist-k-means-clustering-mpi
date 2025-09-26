@@ -55,8 +55,12 @@ make valgrind           # Run MPI version with valgrind memory checking
 where ```#``` is the number of parallel processes to execute (e.g. ```mpirun -np 32 ./kmeans_mpi```)
 
 ## Program Output
+## Terminal 
 ![Screenshot 2025-09-25 at 17.06.42.png](Screenshot%202025-09-25%20at%2017.06.42.png)
 ![Screenshot 2025-09-25 at 17.05.51.png](Screenshot%202025-09-25%20at%2017.05.51.png)
 ![Screenshot 2025-09-25 at 17.05.20.png](Screenshot%202025-09-25%20at%2017.05.20.png)
 ![Screenshot 2025-09-25 at 17.04.39.png](Screenshot%202025-09-25%20at%2017.04.39.png)
+
+## Web Browser 
+### Visualizaion of K-means algorithm results with k = 10 
 ![Screenshot 2025-09-25 at 15-11-18 .png](Screenshot%202025-09-25%20at%2015-11-18%20.png)
