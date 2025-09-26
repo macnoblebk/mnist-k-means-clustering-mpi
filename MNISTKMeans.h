@@ -9,7 +9,11 @@
 #include "KMeans.h"
 #include "MNISTImage.h"
 
-
+/**
+ * @class Concrete MNIST k-means class
+ * @tparam k the number of clusters for k-means
+ * @tparam d the dimensionality of an MNIST image
+ */
 template<int k, int d>
 class MNISTKMeans : public KMeans<k, d> {
 public:
@@ -22,7 +26,12 @@ protected:
     // Type alias for readability
     using Element = std::array<u_char, d>;
 
-
+    /**
+    * @brief Overrides the abstract distance method from KMeans with Euclidean distance
+    * @param a one MNIST image
+    * @param b another MNIST image
+    * @return Euclidean distance between the two images
+    */
     double distance(const Element& a, const Element& b) const {
         // Convert raw element data to MNISTImage objects to use their distance method
         return MNISTImage(a).euclideanDistance(MNISTImage(b));
