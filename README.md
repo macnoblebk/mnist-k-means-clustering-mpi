@@ -25,23 +25,34 @@ MPI parallelization.
 ```
 
 # Compilation
+## Using Makefile (Recommended)
+```bash
+make                    # Build both sequential and MPI versions
+make kmean_color_test   # Build sequential version only
+make hw5                # Build MPI version only
+make clean              # Clean build artifacts
 ```
-make                    # Build all targets
-make sequential         # Build sequential version only
-make mpi               # Build MPI version only
-make clean             # Clean build artifacts
+
+# Run Programs
+```bash
+make run_sequential     # Run sequential version
+make run_hw5            # Run MPI version with 2 processes
+make bigger_test        # Run MPI version with 10 processes
+make valgrind           # Run MPI version with valgrind memory checking
+
 ```
 
 # Usage
 ## Sequential K-Means
 ```bash
-    ./kmeans_sequential
+./kmeans_sequential
 ```
 
 ## MPI K-Means
 ```bash
-    mpirun -np 4 ./kmeans_mpi
+    mpirun -np # ./kmeans_mpi
 ```
+where ```#``` is the number of parallel processes to execute (e.g. ```mpirun -np 32 ./kmeans_mpi```)
 
 ## Program Output
 ![Screenshot 2025-09-25 at 17.06.42.png](Screenshot%202025-09-25%20at%2017.06.42.png)
