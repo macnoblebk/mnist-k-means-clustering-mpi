@@ -134,3 +134,11 @@ bool readMNISTLabels(u_char** labels, int* n) {
         return false;
     }
 }
+
+
+uint32_t swapEndian(uint32_t value) {
+    return ((value & 0xFF) << 24) |
+           ((value & 0xFF00) << 8) |
+           ((value & 0xFF0000) >> 8) |
+           ((value & 0xFF000000) >> 24);
+}
