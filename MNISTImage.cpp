@@ -22,3 +22,7 @@ double MNISTImage::euclideanDistance(const MNISTImage &other) const {
     }
     return std::sqrt(sum);
 }
+
+u_char MNISTImage::getPixel(int row, int col) const {
+    return pixels[ROWS_N * row + col];
+}
