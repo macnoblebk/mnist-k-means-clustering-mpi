@@ -233,3 +233,23 @@ std::string htmlRandomBackground() {
 
     return {buffer};
 }
+
+void htmlCell(std::ofstream& f, const MNISTImage& image) {
+    f << "<table style=\"border-collapse:collapse\">\n";
+
+    // For each pixel row
+    for (int row = 0; row < MNISTImage::getNumRows(); row++) {
+        f << "<tr>\n";
+
+        // For each pixel column
+        for (int col = 0; col < MNISTImage::getNumCols(); col++) {
+            // Create a cell with background color based on pixel value
+            f << "<td class=\"pixel\" style=\"background:#"
+              << image.pixelToHex(row, col) << ";\"></td>\n";
+        }
+
+        f << "</tr>\n";
+    }
+
+    f << "</table>\n";
+}
