@@ -79,3 +79,58 @@ bool readMNISTImages(MNISTImage** images, int* n) {
         return false;
     }
 }
+
+
+
+
+bool readMNISTLabels(u_char** labels, int* n) {
+    std::ifstream file(MNIST_LABELS_FILEPATH, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open MNIST labels file." << std::endl;
+        return false;
+    }
+
+    // MNIST labels header
+    uint32_t magicNumber = 0; // Magic number to verify file format
+    uint32_t labels_n = 0;    // Number of labels in file
+
+    // Read header values
+    file.read((char*)&magicNumber, sizeof(magicNumber));
+    file.read((char*)&labels_n, sizeof(labels_n));
+
+    // Convert from big-endian to host endianness
+    magicNumber = swapEndian(magicNumber);
+    labels_n = swapEndian(labels_n);
+
+    // Verify magic number
+    if (magicNumber != 2049) {
+        std::cerr << "Error: Invalid MNIST label file format." << std::endl;
+        return false;
+    }
+
+    // Determine how many labels to read
+    int labelsToRead = std::min(static_cast<int>(labels_n), IMAGE_LIMIT);
+
+    // Allocate memory for labels and read data
+    try {
+        u_char* labelsData = new u_char[labelsToRead];
+
+        for (int i = 0; i < labelsToRead; i++) {
+            file.read((char*)&labelsData[i], 1); // Each label is a single byte
+
+            if (file.fail()) {
+                delete[] labelsData;
+                std::cerr << "Error: Failed to read label data." << std::endl;
+                return false;
+            }
+        }
+
+        // Set output parameters
+        *labels = labelsData;
+        *n = labelsToRead;
+        return true;
+    } catch (const std::bad_alloc& e) {
+        std::cerr << "Error: Memory allocation failed - " << e.what() << std::endl;
+        return false;
+    }
+}
