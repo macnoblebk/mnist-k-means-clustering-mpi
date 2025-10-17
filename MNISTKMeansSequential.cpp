@@ -195,3 +195,22 @@ double calculateErrorRate(
 
     return errorRate;
 }
+
+
+void printClusters(
+        const MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters& clusters,
+        const u_char* labels
+) {
+    std::cout << "\nMNIST labels report: showing clusters...\n";
+
+    // Iterate through each cluster
+    for (size_t i = 0; i < clusters.size(); i++) {
+        std::cout << "\ncluster #" << i + 1 << ":\n";
+
+        // Print all label values for elements in this cluster
+        for (int j: clusters[i].elements)
+            std::cout << (int)labels[j] << " ";
+
+        std::cout << std::endl;
+    }
+}
