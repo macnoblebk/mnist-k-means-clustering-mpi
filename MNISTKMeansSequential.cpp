@@ -142,3 +142,56 @@ uint32_t swapEndian(uint32_t value) {
            ((value & 0xFF0000) >> 8) |
            ((value & 0xFF000000) >> 24);
 }
+
+
+double calculateErrorRate(
+        const MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters& clusters,
+        const u_char* labels) {
+
+    int totalImages = 0;
+    int misclassifiedImages = 0;
+
+    // Process each cluster
+    for (size_t clusterIdx = 0; clusterIdx < clusters.size(); clusterIdx++) {
+        const auto& cluster = clusters[clusterIdx];
+
+        if (cluster.elements.empty()) continue;
+
+        // Count frequency of each digit (0-9) in this cluster
+        std::array<int, 10> digitCounts = {0};
+        for (int elemIdx : cluster.elements) {
+            int digit = labels[elemIdx];
+            digitCounts[digit]++;
+        }
+
+        // Find the majority label for this cluster
+        int majorityDigit = 0;
+        int maxCount = 0;
+        for (int digit = 0; digit < 10; digit++) {
+            if (digitCounts[digit] > maxCount) {
+                maxCount = digitCounts[digit];
+                majorityDigit = digit;
+            }
+        }
+
+        // Count misclassified images (those not matching the majority label)
+        for (int elemIdx : cluster.elements) {
+            totalImages++;
+            if (labels[elemIdx] != majorityDigit) {
+                misclassifiedImages++;
+            }
+        }
+    }
+
+    // Calculate error rate
+    double errorRate = (double)misclassifiedImages / totalImages;
+
+    // Display results
+    std::cout << "\nClustering Error Analysis:" << std::endl;
+    std::cout << "Total images: " << totalImages << std::endl;
+    std::cout << "Misclassified images: " << misclassifiedImages << std::endl;
+    std::cout << "Error rate: " << (errorRate * 100.0) << "%" << std::endl;
+    std::cout << "Accuracy: " << ((1.0 - errorRate) * 100.0) << "%" << std::endl;
+
+    return errorRate;
+}
