@@ -19,6 +19,62 @@ const std::string MNIST_IMAGES_FILEPATH = "./emnist-mnist-test-images-idx3-ubyte
 const std::string MNIST_LABELS_FILEPATH = "./emnist-mnist-test-labels-idx1-ubyte";
 
 
+int main(void) {
+    // Pointers to store the loaded image and label data
+    MNISTImage* images = nullptr;
+    u_char* labels = nullptr;
+
+    // Initialize the k-means algorithm with 10 clusters and 784 dimensions (28x28 pixels)
+    MNISTKMeans<K, MNISTImage::getNumPixels()> kMeans;
+
+    // Load the MNIST dataset
+    int images_n;  // Number of images loaded
+    int labels_n;  // Number of labels loaded
+
+    // Load image data with error checking
+    if (!readMNISTImages(&images, &images_n)) {
+        std::cerr << "Failed to read MNIST images" << std::endl;
+        return 1;
+    }
+
+    // Load label data with error checking
+    if (!readMNISTLabels(&labels, &labels_n)) {
+        std::cerr << "Failed to read MNIST labels" << std::endl;
+        delete[] images; // Clean up already allocated image data
+        return 1;
+    }
+
+    // Verify data alignment
+    if (images_n != labels_n) {
+        std::cerr << "Error: Number of images (" << images_n << ") doesn't match number of labels ("
+                  << labels_n << ")" << std::endl;
+        delete[] images;
+        delete[] labels;
+        return 1;
+    }
+
+    // Run the k-means clustering algorithm on the loaded images
+    kMeans.fit(images, images_n);
+
+    // Get the resulting clusters after algorithm convergence
+    MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters clusters = kMeans.getClusters();
+
+    // Output the clustering results to console and generate HTML visualization
+    printClusters(clusters, labels);
+    calculateErrorRate(clusters, labels);
+
+    // Generate HTML visualization
+    std::string filename = "kmeans_mnist_seq.html";
+    toHTML(clusters, images, filename);
+    std::cout << "\nTry displaying visualization file, " << filename << ", in a web browser!\n";
+
+    // Clean up allocated memory
+    delete[] images;
+    delete[] labels;
+    return 0;
+}
+
+
 bool readMNISTImages(MNISTImage** images, int* n) {
     std::ifstream file(MNIST_IMAGES_FILEPATH, std::ios::binary);
     if (!file.is_open()) {
