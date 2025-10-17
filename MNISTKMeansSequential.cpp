@@ -253,3 +253,71 @@ void htmlCell(std::ofstream& f, const MNISTImage& image) {
 
     f << "</table>\n";
 }
+
+void toHTML(
+        const MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters& clusters,
+        const MNISTImage* images,
+        const std::string& filename
+) {
+    // Open output file with error checking
+    std::ofstream f(filename);
+    if (!f.is_open()) {
+        std::cerr << "Error: Unable to create HTML output file: " << filename << std::endl;
+        return;
+    }
+
+    // Create proper HTML document with styling
+    f << "<!DOCTYPE html>\n"
+      << "<html>\n<head>\n"
+      << "<title>MNIST K-Means Clustering Results </title>\n"
+      << "<style>\n"
+      << "body { background-color: #" << htmlRandomBackground() << "; font-family: Arial, sans-serif; }\n"
+      << "table { border-collapse: collapse; margin: 20px; }\n"
+      << ".cluster-container { vertical-align: top; padding: 10px; }\n"
+      << ".centroid { border: 2px solid #f00; margin-bottom: 10px; }\n"
+      << ".digit-image { margin: 3px; }\n"
+      << ".pixel { width: 5px; height: 5px; }\n"
+      << "</style>\n</head>\n<body>\n"
+      << "<h1>MNIST Clustering Results - Sequential Algorithm</h1>\n"
+      << "<table><tr>\n";
+
+    // For each cluster, create a column in the table
+    for (int clusterIdx = 0; clusterIdx < K; clusterIdx++) {
+        const auto& cluster = clusters[clusterIdx];
+
+        f << "<td class=\"cluster-container\">\n"
+          << "<h3>Cluster " << (clusterIdx + 1) << "</h3>\n"
+          << "<p>" << cluster.elements.size() << " images</p>\n"
+          << "<div class=\"centroid\">";
+
+        // First display the centroid of the cluster
+        htmlCell(f, cluster.centroid);
+        f << "</div>\n";
+
+        // Show sample of images in this cluster
+        const int maxImagesToShow = std::min(20, static_cast<int>(cluster.elements.size()));
+        for (int i = 0; i < maxImagesToShow; i++) {
+            f << "<div class=\"digit-image\">";
+            htmlCell(f, images[cluster.elements[i]]);
+            f << "</div>\n";
+        }
+
+        // Show message if some images are hidden
+        if (static_cast<int>(cluster.elements.size()) > maxImagesToShow) {
+            f << "<p>(" << (static_cast<int>(cluster.elements.size()) - maxImagesToShow)
+              << " more images not shown)</p>\n";
+        }
+
+        f << "</td>\n";
+    }
+
+    // Write HTML footer
+    f << "</tr></table>\n</body>\n</html>\n";
+
+    // Ensure the file is written
+    f.flush();
+
+    if (f.fail()) {
+        std::cerr << "Error: Failed to write HTML visualization to " << filename << std::endl;
+    }
+}
