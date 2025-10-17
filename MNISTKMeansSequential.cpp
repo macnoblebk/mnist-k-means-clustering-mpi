@@ -214,3 +214,22 @@ void printClusters(
         std::cout << std::endl;
     }
 }
+
+std::string htmlRandomBackground() {
+    // Use static random generator
+    static std::mt19937 rng(std::random_device{}());
+
+    // Use a distribution that generates lighter colors for better readability
+    static std::uniform_int_distribution<> distrib(200, 240);
+
+    // Generate pastel color
+    int r = distrib(rng);
+    int g = distrib(rng);
+    int b = distrib(rng);
+
+    // Format as a hex color string
+    char buffer[7];
+    snprintf(buffer, sizeof(buffer), "%.6x", (r << 16) | (g << 8) | b);
+
+    return {buffer};
+}
