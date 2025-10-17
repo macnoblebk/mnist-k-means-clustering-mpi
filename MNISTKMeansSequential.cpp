@@ -1,4 +1,14 @@
-
+/**
+ * @file MNISTKMeansSequential.cpp
+ * @author Mac-Noble Brako-Kusi
+ * @date 03-07-2025
+ * @see "Seattle University, CPSC5600, Winter 2025"
+ *
+ * This file implements a sequential K-means clustering algorithm for MNIST
+ * handwritten digit images. It reads MNIST image and label data from binary files,
+ * clusters the images using the K-means algorithm, and outputs the results both
+ * to the console and as an HTML visualization.
+ */
 
 #include <iostream>
 #include <fstream>
@@ -17,6 +27,83 @@ const int IMAGE_LIMIT = 1000;  // Maximum number of images to process
 // File paths for MNIST dataset files
 const std::string MNIST_IMAGES_FILEPATH = "./emnist-mnist-test-images-idx3-ubyte";
 const std::string MNIST_LABELS_FILEPATH = "./emnist-mnist-test-labels-idx1-ubyte";
+
+
+/**
+ * Reads and unmarshals the MNIST images data set from binary file
+ * @param images double pointer to store the loaded image data
+ * @param n pointer to store the number of images loaded
+ */
+bool readMNISTImages(MNISTImage**, int*);
+
+
+/**
+ * Reads the MNIST labels data set from binary file
+ * @param labels double pointer to store the loaded label data
+ * @param n pointer to store the number of labels loaded
+ */
+bool readMNISTLabels(u_char**, int*);
+
+
+/**
+ * Reverses the byte ordering of a 32-bit integer
+ * Used to handle endianness differences in the MNIST file format
+ * @param value the integer to reverse byte ordering of
+ * @return the new byte-reversed integer
+ */
+uint32_t swapEndian(uint32_t);
+
+
+/**
+ * Calculate and display the error rate of the clustering
+ * @param clusters The final clusters from k-means
+ * @param labels The ground truth digit labels
+ * @return The error rate
+ */
+double calculateErrorRate(
+        const MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters&,
+        const u_char*);
+
+
+/**
+ * Outputs a report to the console showing the resulting k-means clusters
+ * and the digit labels contained in each cluster
+ * @param clusters the final clusters after k-means convergence
+ * @param labels the MNIST digit labels corresponding to the images
+ */
+void printClusters(
+        const MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters&,
+        const u_char*
+);
+
+
+/**
+ * Generates an HTML file visualizing the k-means clustering results
+ * Creates a visual grid showing the images in each cluster
+ * @param clusters the final clusters after k-means convergence
+ * @param images the MNIST image data for visualization
+ * @param filename the output HTML file name
+ */
+void toHTML(
+        const MNISTKMeans<K, MNISTImage::getNumPixels()>::Clusters&,
+        const MNISTImage*,
+        const std::string&
+);
+
+/**
+ * Generates an HTML table cell for a given MNIST image
+ * Each pixel is represented as a colored table cell
+ * @param f an output file stream for writing HTML
+ * @param image the MNIST image to render
+ */
+void htmlCell(std::ofstream&, const MNISTImage&);
+
+/**
+ * Generates a random hex background color for HTML visualizations
+ * @return string containing a random hex color code
+ */
+std::string htmlRandomBackground();
+
 
 
 int main(void) {
